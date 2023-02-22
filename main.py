@@ -6,14 +6,14 @@ from discord.ext import commands
 import logging
 from MusicCog import MusicCog
 from HelpCog import HelpCog
+from dotenv import load_dotenv
 
-TOKEN='MTA2MDkzMjU2MzgwOTU5OTQ5OA.GpnHld.qSYgPsurqM_IOaQM-nhCxbBQyKwBqCgI3zXInc'
-#TOKEN = 'MTA3MDQzNDUwODc1MjU1NjEwMg.GlVgbA.wl3n4uGH1jERtCxIGzXTjJW1j4d7O4jaLsCBrU'
 intents = discord.Intents.default()
 intents.message_content = True
 
 client = commands.Bot(command_prefix='y!', intents=intents)
-
+load_dotenv()
+TOKEN=os.getenv('TOKEN')
 
 # FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',  'options': '-vn'}
 #
@@ -24,7 +24,6 @@ async def setup(client):
     client.remove_command('skip')
     await client.load_extension("MusicCog")
     client.remove_command('help')
-
     await client.load_extension("HelpCog")
     print('cogs ready')
 
