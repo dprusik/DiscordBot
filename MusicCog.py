@@ -2,12 +2,12 @@
 import logging
 import asyncio
 
-
 import discord
 from discord.ext import commands
 from discord.utils import get
-#from youtube_dl import YoutubeDL
+# from youtube_dl import YoutubeDL
 from yt_dlp import YoutubeDL
+
 
 class MusicCog(commands.Cog):
     def __init__(self, bot):
@@ -20,7 +20,7 @@ class MusicCog(commands.Cog):
                        'postprocessors': [{
                            'key': 'FFmpegExtractAudio',
                            'preferredquality': '1024'}],
-                       'playlist_items':'1'
+                       'playlist_items': '1'
                        }
         self.FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
                                'options': '-vn'}
@@ -30,37 +30,36 @@ class MusicCog(commands.Cog):
         ```
         """
         self.playingNow = ""
-        self.empty=True
+        self.empty = True
 
-        #bot.loop.create_task(self.player_loop())
-
+        # bot.loop.create_task(self.player_loop())
 
     def removeplaylist(self, url):  # helps dealing with &list and &radio when parsing links to videos
-        newurl=""
-        tmp=url.find("https://www.youtube.com/watch?v=") != -1
-        if tmp!= -1:
+        newurl = ""
+        tmp = url.find("https://www.youtube.com/watch?v=") != -1
+        if tmp != -1:
             stringindex = url.find("&")
             if stringindex != -1:
                 newurl = url[:stringindex]
             else:
-                newurl=url
+                newurl = url
         return newurl
 
     def search_yt(self, item):
         with YoutubeDL(self.ydl_op) as ydl:
             try:
                 info = ydl.extract_info("ytsearch:%s" % item, download=False)['entries'][0]
-                # print(info)
+                print(info)
             except Exception:
                 dmp = logging.exception("Fuckup")
                 # dmp+= info
                 return dmp
 
-        return {'source': info['url'], 'title': info['title']}
+        return {'source': info['url'], 'title': info['title'], 'org':info['original_url']}
 
     async def queueEmpty(self, ctx):
         await ctx.send(self.emptymessage)
-        self.empty=True
+        self.empty = True
 
     def playNext(self, ctx):  # same s playMusic but doesn't check for connection
         if len(self.musicQueue) > 0:
@@ -70,10 +69,11 @@ class MusicCog(commands.Cog):
 
             if not self.voice.is_playing():
                 self.musicQueue.pop(0)
-                self.playingNow = "Teraz leci: " + song["title"]
+                self.playingNow = "Teraz leci: " + song["title"] + " " + song['org']
                 # asyncio.create_task(ctx.send(self.playingNow))
                 self.bot.loop.create_task(ctx.send(self.playingNow))
-                self.voice.play(discord.FFmpegOpusAudio(song['source'], **self.FFMPEG_OPTIONS), after=lambda e: self.playNext(ctx))
+                self.voice.play(discord.FFmpegOpusAudio(song['source'], **self.FFMPEG_OPTIONS),
+                                after=lambda e: self.playNext(ctx))
         else:
             self.is_playing = False
             if not self.empty:
@@ -95,15 +95,16 @@ class MusicCog(commands.Cog):
             print(f"finished connect to: {self.musicQueue[0][1].id}")
             if not self.voice.is_playing():
                 self.musicQueue.pop(0)
-                self.playingNow = "Teraz leci: " + song["title"]
-                self.voice.play(discord.FFmpegOpusAudio(song['source'], **self.FFMPEG_OPTIONS), after=lambda e: self.playNext(ctx))
+                self.playingNow = "Teraz leci: " + song["title"] + " " + song['org']
+                self.voice.play(discord.FFmpegOpusAudio(song['source'], **self.FFMPEG_OPTIONS),
+                                after=lambda e: self.playNext(ctx))
                 await ctx.send(self.playingNow)
         else:
             self.is_playing = False
             # await self.queueEmpty(ctx)
 
     @commands.Cog.listener()
-    async def on_voice_state_update(self,member, before, after):
+    async def on_voice_state_update(self, member, before, after):
         if not member.id == self.bot.user.id:
             return
         elif before.channel is None:
@@ -158,17 +159,16 @@ class MusicCog(commands.Cog):
     async def skip(self, ctx):
         if self.voice and self.voice.is_connected:
             self.voice.stop()
-            #time.sleep(0.5)
+            # time.sleep(0.5)
             await self.playMusic(ctx)
-            #return
+            # return
 
             # if len(self.musicQueue) == 0:
             #     await self.queueEmpty(ctx)
 
-
     @commands.command(name='queue')
     async def queue(self, ctx):
-        if len(self.musicQueue)==0:
+        if len(self.musicQueue) == 0:
             await self.queueEmpty(ctx)
         else:
             queuelist = """```
