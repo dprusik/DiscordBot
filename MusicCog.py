@@ -6,8 +6,8 @@ import asyncio
 import discord
 from discord.ext import commands
 from discord.utils import get
-from youtube_dl import YoutubeDL
-#from yt_dlp import YoutubeDL
+#from youtube_dl import YoutubeDL
+from yt_dlp import YoutubeDL
 
 class MusicCog(commands.Cog):
     def __init__(self, bot):
@@ -19,7 +19,9 @@ class MusicCog(commands.Cog):
                        'noplaylist': 'True',
                        'postprocessors': [{
                            'key': 'FFmpegExtractAudio',
-                           'preferredquality': '1024'}]}
+                           'preferredquality': '1024'}],
+                       'playlist_items':'1'
+                       }
         self.FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
                                'options': '-vn'}
         self.voice = None
@@ -54,7 +56,7 @@ class MusicCog(commands.Cog):
                 # dmp+= info
                 return dmp
 
-        return {'source': info['formats'][0]['url'], 'title': info['title']}
+        return {'source': info['url'], 'title': info['title']}
 
     async def queueEmpty(self, ctx):
         await ctx.send(self.emptymessage)
