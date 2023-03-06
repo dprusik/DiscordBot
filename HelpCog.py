@@ -9,12 +9,13 @@ class HelpCog(commands.Cog):
 ```
 Komendy dla bota:
 !help - wyświetla dostępne komendy
-!play <słowa kluczowe>/<link do utworu z yt>- przeszukuje YouTube, a następnie  odtwarza znaleźiony utwór na kanale
+!play <słowa kluczowe>/<link do utworu z yt>- przeszukuje YouTube, a następnie  odtwarza znaleziony utwór na kanale
 !queue - Wyświetla listę utworów w kolejce
 !skip - Pomija aktualny utwór
 !stop - Wyrzuca bota z kanału
 !pause - pausuje aktualny utwór, ponowne użycie wznawia odtwarzanie
 !now - wyświetla informacje o aktualnie odtwarzanym utwórze, 
+!forward <mm:ss> - przewija aktualny utwór o zadana wartośc minut i sekund
 ```
 """
 
